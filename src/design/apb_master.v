@@ -41,20 +41,26 @@ begin
 		PENABLE <= next_en;	
 		pwdata <= next_write_data;
 
-		case(ps)
-		idle:
+		if( (ps == idle))
 		begin
 			if(READ_WRITE)
 				paddr <= next_paddr_W;
 			else
 				paddr <= next_paddr_R;
 		end
-		access:
+		if( (ps==access) && PREADY)
 		begin
-			if(PREADY && !PWRITE)
+			if(!PWRITE)
 				apb_read_data_out <= PRDATA;
+
+			if(transfer)
+			begin	
+				if(READ_WRITE)
+					paddr <= next_paddr_W;
+				else
+					paddr <= next_paddr_R;
+			end
 		end
-		endcase
 
 	end
 end

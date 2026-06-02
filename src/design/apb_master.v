@@ -94,10 +94,14 @@ begin
 
 		if(transfer)
 		begin
+		    next_sel = 1;
+		    next_en =0;
 			ns = setup;
 		end
 		else
 		begin
+		    next_sel = 0;
+		    next_en =0;
 			ns = idle;
 		end
 	end
@@ -105,7 +109,7 @@ begin
 	setup:
 	begin
 		next_sel = 1;
-		next_en =0;
+		next_en =1;
 		ns = access;
 	end
 
@@ -142,3 +146,4 @@ begin
 end	
 
 endmodule
+

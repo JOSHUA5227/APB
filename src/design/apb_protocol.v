@@ -1,76 +1,93 @@
-module apb_protocol #(parameter DATA_WIDTH=8, ADDR_WIDTH=8)
+module apb_protocol #(
+    parameter ADDR_WIDTH = 9,
+    parameter DATA_WIDTH = 8
+)
 (
-	input PCLK,
-	input PRESETn,
-	input transfer,
-	input READ_WRITE,
-	input [ADDR_WIDTH:0] apb_read_paddr,
-	input [ADDR_WIDTH:0] apb_write_paddr,
-	input [DATA_WIDTH-1:0] apb_write_data,
-	input slv_PREADY1,
-	input slv_PREADY2,
-	input [DATA_WIDTH-1:0] slv_PRDATA1,
-	input [DATA_WIDTH-1:0] slv_PRDATA2,
-	output PWRITE,
-	output PENABLE,
-	output PSEL1,
-	output slv_psel1,
-	output slv_psel2,
-	output [ADDR_WIDTH-1:0] paddr,
-	output [DATA_WIDTH-1:0] pwdata,
-	output [DATA_WIDTH-1:0] apb_read_data_out
+    input PCLK,
+    input PRESETn,
+
+    input transfer,
+    input READ_WRITE,
+
+    input [ADDR_WIDTH-1:0] apb_write_paddr,
+    input [ADDR_WIDTH-1:0] apb_read_paddr,
+
+    input [DATA_WIDTH-1:0] apb_write_data,
+
+    input slv_PREADY1,
+    input slv_PREADY2,
+
+    input [DATA_WIDTH-1:0] slv_PRDATA1,
+    input [DATA_WIDTH-1:0] slv_PRDATA2,
+
+    output PWRITE,
+    output PSEL,
+    output PENABLE,
+
+    output slv_psel1,
+    output slv_psel2,
+
+    output [ADDR_WIDTH-2:0] paddr,
+    output [DATA_WIDTH-1:0] pwdata,
+
+    output [DATA_WIDTH-1:0] apb_read_data_out
 );
 
-wire mux_sel;
-wire mst_PREADY;
-wire [DATA_WIDTH-1:0] mst_PRDATA;
+    wire mux_sel;
 
-apb_master #(
-	.ADDR_WIDTH(ADDR_WIDTH),
-	.DATA_WIDTH(DATA_WIDTH)
-) u_master (
-	.PCLK(PCLK),
-	.PRESETn(PRESETn),
+    wire mst_PREADY;
+    wire [DATA_WIDTH-1:0] mst_PRDATA;
 
-	.transfer(transfer),
-	.READ_WRITE(READ_WRITE),
+    apb_master #(
+        .ADDR_WIDTH(ADDR_WIDTH),
+        .DATA_WIDTH(DATA_WIDTH)
+    ) u_master (
+        .PCLK(PCLK),
+        .PRESETn(PRESETn),
 
-	.apb_write_paddr(apb_write_paddr),
-	.apb_read_paddr(apb_read_paddr),
+        .transfer(transfer),
+        .READ_WRITE(READ_WRITE),
 
-	.apb_write_data(apb_write_data),
+        .apb_write_paddr(apb_write_paddr),
+        .apb_read_paddr(apb_read_paddr),
 
-	.PREADY(mst_PREADY),
-	.PRDATA(mst_PRDATA),
+        .apb_write_data(apb_write_data),
 
-	.PWRITE(PWRITE),
-	.PSEL1(PSEL1),
-	.PENABLE(PENABLE),
+        .PREADY(mst_PREADY),
+        .PRDATA(mst_PRDATA),
 
-	.paddr(paddr),
-	.pwdata(pwdata),
-	.apb_read_data_out(apb_read_data_out),
+        .PWRITE(PWRITE),
+        .PSEL(PSEL),
+        .PENABLE(PENABLE),
 
-	.mux_sel(mux_sel)
-);
+        .paddr(paddr),
+        .pwdata(pwdata),
+        .apb_read_data_out(apb_read_data_out),
 
-apb_mux u_mux(
-	.mux_sel(mux_sel),
+        .mux_sel(mux_sel)
+    );
 
-	.mst_psel(PSEL1),
+    apb_mux #(
+        .DATA_WIDTH(DATA_WIDTH),
+        .ADDR_WIDTH(ADDR_WIDTH-1)
+    ) u_mux (
+        .mux_sel(mux_sel),
 
-	.slv_PREADY1(slv_PREADY1),
-	.slv_PREADY2(slv_PREADY2),
+        .mst_psel(PSEL),
+        .addr(paddr),
 
-	.slv_PRDATA1(slv_PRDATA1),
-	.slv_PRDATA2(slv_PRDATA2),
+        .slv_PREADY1(slv_PREADY1),
+        .slv_PREADY2(slv_PREADY2),
 
-	.mst_PREADY(mst_PREADY),
-	.mst_PRDATA(mst_PRDATA),
+        .slv_PRDATA1(slv_PRDATA1),
+        .slv_PRDATA2(slv_PRDATA2),
 
-	.slv_psel1(slv_psel1),
-	.slv_psel2(slv_psel2)
-);
+        .mst_PREADY(mst_PREADY),
+        .mst_PRDATA(mst_PRDATA),
 
+        .slv_psel1(slv_psel1),
+        .slv_psel2(slv_psel2)
+    );
 
 endmodule
+
